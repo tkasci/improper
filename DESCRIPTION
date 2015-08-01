@@ -1,0 +1,10 @@
+Package: improper
+Type: Package
+Title: Enjoy the Robust Beauty of Improper Linear Models
+Version: 0.3
+Date: 2015-07-17
+Author: Tymoteusz Wolodzko
+Maintainer: Tymoteusz Wolodzko <twolodzko@gmail.com>
+Description: Enjoy the Robust Beauty of Improper Linear Models
+License: GNU GPL
+LazyData: TRUE
