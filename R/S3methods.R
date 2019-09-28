@@ -17,66 +17,55 @@ predict.ilm <- function(object, newdata = NULL) {
 
   if(is.null(newdata)) {
     pred <- fitted(object)
+    return(pred)
   } else {
     if(!is.null(object$formula)){
-      x <- model.matrix(object, newdata)
-    } else {
-      x <- newdata
+      if(!is.data.frame(newdata)){
+  stop("newdata must be empty or a data frame")
+}
+      modmat <- model.matrix(object, data=newdata)
+        } else {
+      modmat <- newdata
     }
+  
+  coefs <- c(coef(object)[1], coef(object)[2] * object$weighting)
+  res <- t(t(modmat) * coefs)
+  res.total <- rowSums(res)
 
-    intercept <- attr(x, "assign") == 0
-    if (any(intercept))
-      x <- x[, !intercept, drop = FALSE]
-
-    x <- scale(x, center = if (!is.null(object$scaling$center))
-                             object$scaling$center else FALSE,
-                  scale = if (!is.null(object$scaling$scale))
-                             object$scaling$scale else FALSE)
-
-    variate <- as.vector(x %*% object$weighting)
-
-    if (length(coef(object)) == 2)
-      fit <- coef(object)[1] + coef(object)[2] * variate
-    else
-      fit <- coef(object)[1] * variate
-
-    pred <- fit
+  if(linkinverse){
+  pred <- object$family$linkinv(res.total)} else {
+    pred <- res.total
+  }
   }
   pred
-
 }
 
 
 #' @export
 
-predict.iglm <- function(object, newdata = NULL) {
+predict.iglm <- function(object, newdata = NULL, linkinverse = T) {
 
   if(is.null(newdata)) {
     pred <- fitted(object)
+    return(pred)
   } else {
     if(!is.null(object$formula)){
-      x <- model.matrix(object, newdata)
-    } else {
-      x <- newdata
+      if(!is.data.frame(newdata)){
+  stop("newdata must be empty or a data frame")
+}
+      modmat <- model.matrix(object, data=newdata)
+        } else {
+      modmat <- newdata
     }
+  
+  coefs <- c(coef(object)[1], coef(object)[2] * object$weighting)
+  res <- t(t(modmat) * coefs)
+  res.total <- rowSums(res)
 
-    intercept <- attr(x, "assign") == 0
-    if (any(intercept))
-      x <- x[, !intercept, drop = FALSE]
-
-    x <- scale(x, center = if (!is.null(object$scaling$center))
-                             object$scaling$center else FALSE,
-                  scale = if (!is.null(object$scaling$scale))
-                             object$scaling$scale else FALSE)
-
-    variate <- as.vector(x %*% object$weighting)
-
-    if (length(coef(object)) == 2)
-      fit <- coef(object)[1] + coef(object)[2] * variate
-    else
-      fit <- coef(object)[1] * variate
-
-    pred <- object$family$linkinv(fit)
+  if(linkinverse){
+  pred <- object$family$linkinv(res.total)} else {
+    pred <- res.total
+  }
   }
   pred
 
