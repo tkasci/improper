@@ -31,7 +31,7 @@ predict.ilm <- function(object, newdata = NULL) {
 
 #' @export
 
-predict.iglm <- function(object, newdata = NULL, return="link") {
+predict.iglm <- function(object, newdata = NULL, return="response") {
   if (is.null(newdata)) {
     return(object$fitted.values)
   }
