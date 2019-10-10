@@ -1,5 +1,6 @@
 
 
+
 #' Extract variable weights from ilm or iglm object
 #'
 #' @param object an \code{ilm} or \code{iglm} object.
@@ -8,70 +9,40 @@
 #'
 #' @export
 
-weighting <- function(object) object$weighting
+weighting <- function(object)
+  object$weighting
 
 
 #' @export
 
 predict.ilm <- function(object, newdata = NULL) {
-
-  if(is.null(newdata)) {
-    pred <- fitted(object)
-    return(pred)
-  } else {
-    if(!is.null(object$formula)){
-      if(!is.data.frame(newdata)){
-  stop("newdata must be empty or a data frame")
-}
-      modmat <- model.matrix(object, data=newdata)
-        } else {
-      modmat <- newdata
-    }
-  
-  coefs <- c(coef(object)[1], coef(object)[2] * object$weighting)
-  res <- t(t(modmat) * coefs)
-  res.total <- rowSums(res)
-
-  if(linkinverse){
-  pred <- object$family$linkinv(res.total)} else {
-    pred <- res.total
+  if (is.null(newdata)) {
+    return(object$fitted.values)
   }
-  }
-  pred
+  intercept <- coef(object)[1]
+  variate <- coef(object)[2]
+  varnames <- names(object$weighting)
+  varweight <- variate * object$weighting
+  data.select <- newdata[, names(object$weighting)]
+  res <- coef(object)[1] + rowSums(varweight * data.select)
+  res
 }
 
 
 #' @export
 
-predict.iglm <- function(object, newdata = NULL, linkinverse = T) {
-
-  if(is.null(newdata)) {
-    pred <- fitted(object)
-    return(pred)
-  } else {
-    if(!is.null(object$formula)){
-      if(!is.data.frame(newdata)){
-  stop("newdata must be empty or a data frame")
-}
-      modmat <- model.matrix(object, data=newdata)
-        } else {
-      modmat <- newdata
-    }
-  
-  coefs <- c(coef(object)[1], coef(object)[2] * object$weighting)
-  res <- t(t(modmat) * coefs)
-  res.total <- rowSums(res)
-
-  if(linkinverse){
-  pred <- object$family$linkinv(res.total)} else {
-    pred <- res.total
+predict.iglm <- function(object, newdata = NULL) {
+  if (is.null(newdata)) {
+    return(object$fitted.values)
   }
-  }
-  pred
-
+  intercept <- coef(object)[1]
+  variate <- coef(object)[2]
+  varnames <- names(object$weighting)
+  varweight <- variate * object$weighting
+  data.select <- newdata[, names(object$weighting)]
+  res <- coef(object)[1] + rowSums(varweight * data.select)
+  res
 }
-
-
 
 #' @export
 
@@ -101,5 +72,3 @@ summary.iglm <- function(object, ...) {
   cat("Weights:\n")
   print(object$weighting)
 }
-
-
