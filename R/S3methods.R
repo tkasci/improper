@@ -31,7 +31,7 @@ predict.ilm <- function(object, newdata = NULL) {
 
 #' @export
 
-predict.iglm <- function(object, newdata = NULL) {
+predict.iglm <- function(object, newdata = NULL, return="link") {
   if (is.null(newdata)) {
     return(object$fitted.values)
   }
@@ -41,7 +41,12 @@ predict.iglm <- function(object, newdata = NULL) {
   varweight <- variate * object$weighting
   data.select <- newdata[, names(object$weighting)]
   res <- coef(object)[1] + rowSums(varweight * data.select)
-  res
+  if(return=="response"){
+    return(object$family$linkinv(res))
+  } else {
+    return(res)
+  }
+
 }
 
 #' @export
